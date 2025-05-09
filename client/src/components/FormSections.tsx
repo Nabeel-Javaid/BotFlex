@@ -229,7 +229,7 @@ export function ProfessionalDetailsSection({ form }: FormSectionProps) {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="">Any size</SelectItem>
+                    <SelectItem value="any">Any size</SelectItem>
                     <SelectItem value="1-10">1-10 employees</SelectItem>
                     <SelectItem value="11-50">11-50 employees</SelectItem>
                     <SelectItem value="51-200">51-200 employees</SelectItem>
