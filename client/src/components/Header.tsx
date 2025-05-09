@@ -3,41 +3,62 @@ import { Link } from "wouter";
 
 export default function Header() {
   return (
-    <header className="relative py-6 px-4 md:px-8 bg-[#8B4513] bg-paper-texture-dark bg-blend-multiply">
+    <header className="relative py-4 px-4 md:px-8 bg-white shadow-sm z-10">
       <div className="max-w-6xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-center">
+        <div className="flex flex-row justify-between items-center">
           {/* Logo and Title */}
-          <div className="flex items-center mb-4 md:mb-0">
+          <div className="flex items-center">
             <svg 
-              className="w-8 h-8 mr-3 text-[#F5F5DC]" 
+              className="w-8 h-8 mr-3 text-blue-600" 
               viewBox="0 0 24 24" 
               fill="none" 
               xmlns="http://www.w3.org/2000/svg"
             >
               <path 
-                d="M10 21H14M10 21H7C5.89543 21 5 20.1046 5 19V5C5 3.89543 5.89543 3 7 3H17C18.1046 3 19 3.89543 19 5V19C19 20.1046 18.1046 21 17 21H14M10 21V17M14 21V17M8 6H16M8 10H16M8 14H11" 
+                d="M17 20.5H7C4 20.5 2 19 2 15.5V8.5C2 5 4 3.5 7 3.5H17C20 3.5 22 5 22 8.5V15.5C22 19 20 20.5 17 20.5Z" 
                 stroke="currentColor" 
-                strokeWidth="2" 
+                strokeWidth="1.5" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              />
+              <path 
+                d="M17 9L13.87 11.5C12.84 12.32 11.15 12.32 10.12 11.5L7 9" 
+                stroke="currentColor" 
+                strokeWidth="1.5" 
                 strokeLinecap="round" 
                 strokeLinejoin="round"
               />
             </svg>
             <Link href="/">
-              <h1 className="font-playfair text-3xl md:text-4xl font-bold text-[#F5F5DC] italic cursor-pointer">
-                ArchiVintage
-              </h1>
+              <div className="cursor-pointer">
+                <h1 className="font-heading text-2xl font-bold text-slate-800">
+                  <span className="text-blue-600">People</span>Search
+                </h1>
+                <div className="h-1 w-12 bg-gradient-primary rounded-full"></div>
+              </div>
             </Link>
           </div>
           
-          {/* Subtitle */}
-          <p className="font-special-elite text-[#F5F5DC] text-sm md:text-base">
-            Your Vintage People Research Archive
-          </p>
+          {/* Navigation */}
+          <nav className="hidden md:flex items-center space-x-6">
+            <Link href="/">
+              <span className="text-slate-600 hover:text-blue-600 transition-colors font-medium cursor-pointer">Home</span>
+            </Link>
+            <button className="text-slate-600 hover:text-blue-600 transition-colors font-medium">About</button>
+            <button className="text-slate-600 hover:text-blue-600 transition-colors font-medium">Features</button>
+            <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+              Sign Up
+            </button>
+          </nav>
+          
+          {/* Mobile menu button */}
+          <button className="md:hidden text-slate-700">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
         </div>
       </div>
-      
-      {/* Decorative header border */}
-      <div className="absolute bottom-0 left-0 w-full h-2 bg-gradient-to-r from-[#A52A2A] via-[#D2B48C] to-[#A52A2A]"></div>
     </header>
   );
 }
