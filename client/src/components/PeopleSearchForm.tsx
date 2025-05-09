@@ -35,14 +35,14 @@ export default function PeopleSearchForm({
       // Professional details
       jobTitle: "",
       companyName: "",
-      companySize: "",
+      companySize: "any",
       industry: "",
       currentRole: false,
       publiclyTraded: false,
       
       // Advanced filters
-      yearsOfExperience: "",
-      educationLevel: "",
+      yearsOfExperience: "any",
+      educationLevel: "any",
       skills: "",
       recentlyActive: false,
       verifiedProfiles: false,

@@ -353,7 +353,7 @@ export function AdvancedFiltersSection({ form }: FormSectionProps) {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="">Any experience</SelectItem>
+                    <SelectItem value="any">Any experience</SelectItem>
                     <SelectItem value="1">1+ years</SelectItem>
                     <SelectItem value="3">3+ years</SelectItem>
                     <SelectItem value="5">5+ years</SelectItem>
@@ -384,7 +384,7 @@ export function AdvancedFiltersSection({ form }: FormSectionProps) {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="">Any education</SelectItem>
+                    <SelectItem value="any">Any education</SelectItem>
                     <SelectItem value="highSchool">High School</SelectItem>
                     <SelectItem value="bachelors">Bachelor's Degree</SelectItem>
                     <SelectItem value="masters">Master's Degree</SelectItem>

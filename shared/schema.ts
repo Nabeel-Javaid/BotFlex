@@ -19,26 +19,26 @@ export type User = typeof users.$inferSelect;
 // Search query schema
 export const searchQuerySchema = z.object({
   // Personal details
-  personName: z.string().optional(),
-  location: z.string().optional(),
-  hasEmail: z.boolean().optional(),
-  hasPhone: z.boolean().optional(),
-  hasSocialProfiles: z.boolean().optional(),
+  personName: z.string().optional().default(""),
+  location: z.string().optional().default(""),
+  hasEmail: z.boolean().optional().default(false),
+  hasPhone: z.boolean().optional().default(false),
+  hasSocialProfiles: z.boolean().optional().default(false),
   
   // Professional details
-  jobTitle: z.string().optional(),
-  companyName: z.string().optional(),
-  companySize: z.string().optional(),
-  industry: z.string().optional(),
-  currentRole: z.boolean().optional(),
-  publiclyTraded: z.boolean().optional(),
+  jobTitle: z.string().optional().default(""),
+  companyName: z.string().optional().default(""),
+  companySize: z.string().optional().default("any"),
+  industry: z.string().optional().default(""),
+  currentRole: z.boolean().optional().default(false),
+  publiclyTraded: z.boolean().optional().default(false),
   
   // Advanced filters
-  yearsOfExperience: z.string().optional(),
-  educationLevel: z.string().optional(),
-  skills: z.string().optional(),
-  recentlyActive: z.boolean().optional(),
-  verifiedProfiles: z.boolean().optional(),
+  yearsOfExperience: z.string().optional().default("any"),
+  educationLevel: z.string().optional().default("any"),
+  skills: z.string().optional().default(""),
+  recentlyActive: z.boolean().optional().default(false),
+  verifiedProfiles: z.boolean().optional().default(false),
 });
 
 export type SearchQuery = z.infer<typeof searchQuerySchema>;
