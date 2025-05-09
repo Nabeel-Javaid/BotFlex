@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { User, Session } from '@supabase/supabase-js'
-import { supabase, AuthUser } from '@/lib/supabase'
+import { supabase, AuthUser, initializeSupabase } from '@/lib/supabase'
 
 type AuthContextType = {
   user: AuthUser | null
@@ -23,24 +23,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const getSession = async () => {
       setIsLoading(true)
       
-      const { data: { session }, error } = await supabase.auth.getSession()
-      
-      if (error) {
-        console.error('Error getting session:', error.message)
-      }
-      
-      setSession(session)
-      setUser(session?.user ? mapUserData(session.user) : null)
-      setIsLoading(false)
-      
-      // Set up auth listener
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      try {
+        // Initialize Supabase with credentials from the server first
+        await initializeSupabase()
+        
+        // Now get the session
+        const { data: { session }, error } = await supabase.auth.getSession()
+        
+        if (error) {
+          console.error('Error getting session:', error.message)
+        }
+        
         setSession(session)
         setUser(session?.user ? mapUserData(session.user) : null)
-        setIsLoading(false)
-      })
+        
+        // Set up auth listener
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+          setSession(session)
+          setUser(session?.user ? mapUserData(session.user) : null)
+          setIsLoading(false)
+        })
 
-      return () => subscription.unsubscribe()
+        return () => subscription.unsubscribe()
+      } catch (error) {
+        console.error('Authentication initialization error:', error)
+      } finally {
+        setIsLoading(false)
+      }
     }
 
     getSession()

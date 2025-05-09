@@ -1,7 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "wouter";
+import { UserMenu } from "@/components/auth";
+import { AuthModal } from "@/components/auth";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export default function Header() {
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  
+  const handleOpenAuthModal = () => {
+    setIsAuthModalOpen(true);
+  };
+  
+  const handleCloseAuthModal = () => {
+    setIsAuthModalOpen(false);
+  };
+
   return (
     <header className="relative py-4 px-4 md:px-8 bg-white shadow-sm z-10">
       <div className="max-w-6xl mx-auto">
@@ -39,26 +52,42 @@ export default function Header() {
             </Link>
           </div>
           
-          {/* Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
-            <Link href="/">
-              <span className="text-slate-600 hover:text-blue-600 transition-colors font-medium cursor-pointer">Home</span>
-            </Link>
-            <button className="text-slate-600 hover:text-blue-600 transition-colors font-medium">About</button>
-            <button className="text-slate-600 hover:text-blue-600 transition-colors font-medium">Features</button>
-            <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
-              Sign Up
-            </button>
-          </nav>
+          {/* Desktop user menu */}
+          <div className="hidden md:flex items-center">
+            <UserMenu onOpenAuthModal={handleOpenAuthModal} />
+          </div>
           
-          {/* Mobile menu button */}
-          <button className="md:hidden text-slate-700">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
+          {/* Mobile menu */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <button className="md:hidden text-slate-700">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+            </SheetTrigger>
+            <SheetContent side="right" className="flex flex-col justify-between">
+              <div className="py-6">
+                <h2 className="text-lg font-medium mb-5">Menu</h2>
+                <div className="flex flex-col space-y-3">
+                  <Link href="/">
+                    <span className="text-slate-600 hover:text-blue-600 transition-colors font-medium cursor-pointer">Home</span>
+                  </Link>
+                  <div className="md:hidden w-full pt-4">
+                    <UserMenu onOpenAuthModal={handleOpenAuthModal} />
+                  </div>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
+
+      {/* Auth Modal */}
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={handleCloseAuthModal} 
+      />
     </header>
   );
 }

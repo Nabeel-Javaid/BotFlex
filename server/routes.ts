@@ -8,6 +8,17 @@ import { z } from "zod";
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL || "";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Route to serve Supabase credentials to the client
+  app.get("/api/config", (req, res) => {
+    // Only expose necessary environment variables to the client
+    res.json({
+      supabase: {
+        url: process.env.SUPABASE_URL || "",
+        key: process.env.SUPABASE_KEY || ""
+      }
+    });
+  });
+
   // API route to send search data to Discord webhook
   app.post("/api/search", async (req, res) => {
     try {
