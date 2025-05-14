@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PeopleSearchForm from "@/components/PeopleSearchForm";
 import SearchResult from "@/components/SearchResult";
+import LeadResults from "@/components/LeadResults";
 import { SearchQuery } from "@shared/schema";
-import { Sliders, Send, Info, AlertTriangle, ExternalLink } from "lucide-react";
+import { Sliders, Send, Info, AlertTriangle, ExternalLink, Globe, Database } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import { testClayAPI } from "@/lib/api";
@@ -19,12 +20,21 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [isTestSending, setIsTestSending] = useState(false);
   const [showCorsFallback, setShowCorsFallback] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+  const [deployedUrl, setDeployedUrl] = useState<string>("");
+
+  // Get the current URL when component mounts
+  useEffect(() => {
+    const url = window.location.origin;
+    setDeployedUrl(url);
+  }, []);
 
   const handleSearchSubmit = (result: { success: boolean; message: string; clayApiSuccess?: boolean }, data: SearchQuery) => {
     setSearchResult(result);
     setSubmittedData(data);
     setIsLoading(false);
     setShowCorsFallback(!result.clayApiSuccess);
+    setShowResults(true); // Show results section
   };
 
   const handleSearchStart = () => {
@@ -52,6 +62,43 @@ export default function Home() {
       variant: result.success ? "default" : "destructive",
       duration: 5000,
     });
+  };
+
+  const handleTestWebhook = async () => {
+    try {
+      toast({
+        title: "Simulating webhook callback",
+        description: "Loading sample lead data...",
+        duration: 3000,
+      });
+
+      const response = await fetch('/api/simulate-callback');
+      const data = await response.json();
+
+      if (data.success) {
+        toast({
+          title: "Test data loaded",
+          description: data.message,
+          duration: 5000,
+        });
+        setShowResults(true);
+      } else {
+        toast({
+          title: "Error simulating webhook",
+          description: data.message,
+          variant: "destructive",
+          duration: 5000,
+        });
+      }
+    } catch (error) {
+      console.error('Error testing webhook:', error);
+      toast({
+        title: "Error testing webhook",
+        description: "Could not load sample data",
+        variant: "destructive",
+        duration: 5000,
+      });
+    }
   };
 
   return (
@@ -82,27 +129,33 @@ export default function Home() {
                   <Send className="h-3 w-3" />
                   {isTestSending ? "Sending..." : "Test API Connection"}
                 </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleTestWebhook}
+                  className="flex items-center gap-1 text-xs bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100"
+                >
+                  <Database className="h-3 w-3" />
+                  Test Webhook
+                </Button>
               </div>
             </div>
           </div>
 
-          {/* CORS Explanation */}
-          {/* <Alert className="mb-6 border-blue-200 bg-blue-50">
-            <Info className="h-5 w-5 text-blue-600" />
-            <AlertTitle className="text-blue-800">About API Connectivity</AlertTitle>
+          {/* Webhook URL Information */}
+          <Alert className="mb-6 border-blue-200 bg-blue-50">
+            <Globe className="h-5 w-5 text-blue-600" />
+            <AlertTitle className="text-blue-800">Webhook URL for Clay Callback</AlertTitle>
             <AlertDescription className="text-blue-700">
-              <p>We're using multiple CORS proxies to try connecting directly to Clay API for your search queries.</p>
-              <a
-                href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 text-blue-600 hover:text-blue-800 underline mt-1 text-sm"
-              >
-                <ExternalLink className="h-3 w-3" />
-                Learn more about CORS
-              </a>
+              <p>Your friend should send the processed data to this webhook URL:</p>
+              <code className="block mt-2 p-2 bg-blue-100 rounded font-mono text-sm overflow-auto">
+                {deployedUrl}/api/clay-webhook
+              </code>
+              <p className="mt-2 text-sm">
+                After your friend sends data to this URL, the results will automatically appear below.
+              </p>
             </AlertDescription>
-          </Alert> */}
+          </Alert>
 
           {/* Success Alert */}
           {searchResult?.clayApiSuccess && (
@@ -110,7 +163,7 @@ export default function Home() {
               <Info className="h-5 w-5 text-green-600" />
               <AlertTitle className="text-green-800">Success!</AlertTitle>
               <AlertDescription className="text-green-700">
-                Your data was successfully sent directly to Clay API via a CORS proxy.
+                Your data was successfully sent to Clay API. Check below for results once your friend processes the data.
               </AlertDescription>
             </Alert>
           )}
@@ -148,6 +201,9 @@ export default function Home() {
               />
             </div>
           )}
+
+          {/* Lead Results - Display when results should be shown */}
+          {showResults && <LeadResults />}
         </div>
       </main>
 
