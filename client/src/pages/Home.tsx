@@ -142,7 +142,7 @@ export default function Home() {
                   <Sliders className="h-4 w-4 mr-1" />
                   <span>Configure your search filters below</span>
                 </div>
-                <Button
+                {/* <Button
                   variant="outline"
                   size="sm"
                   onClick={handleTestSend}
@@ -151,8 +151,8 @@ export default function Home() {
                 >
                   <Send className="h-3 w-3" />
                   {isTestSending ? "Sending..." : "Test API Connection"}
-                </Button>
-                <Button
+                </Button> */}
+                {/* <Button
                   variant="outline"
                   size="sm"
                   onClick={handleTestWebhook}
@@ -160,13 +160,13 @@ export default function Home() {
                 >
                   <Database className="h-3 w-3" />
                   Send Test Data
-                </Button>
+                </Button> */}
               </div>
             </div>
           </div>
 
           {/* Webhook URL Information */}
-          <Alert className="mb-6 border-blue-200 bg-blue-50">
+          {/* <Alert className="mb-6 border-blue-200 bg-blue-50">
             <Globe className="h-5 w-5 text-blue-600" />
             <AlertTitle className="text-blue-800">Webhook URL for Clay Callback</AlertTitle>
             <AlertDescription className="text-blue-700">
@@ -178,7 +178,7 @@ export default function Home() {
                 After your friend sends data to this URL, the results will automatically appear below.
               </p>
             </AlertDescription>
-          </Alert>
+          </Alert> */}
 
           {/* Success Alert */}
           {searchResult?.clayApiSuccess && (

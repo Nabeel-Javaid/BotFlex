@@ -97,45 +97,16 @@ export default function SearchResult({ result, searchData, directApiSuccess = fa
       )}
 
       {/* Discord notification */}
-      <Card className="border-purple-200 bg-purple-50">
+      {/* <Card className="border-purple-200 bg-purple-50">
         <CardContent className="flex items-center space-x-3 py-4">
           <MessageSquare className="h-5 w-5 text-purple-600" />
           <p className="text-sm text-purple-700">
             Your lead search query has been sent to our team's Discord channel for monitoring.
           </p>
         </CardContent>
-      </Card>
+      </Card> */}
 
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex justify-between items-center">
-            <div>
-              <CardTitle>Search Summary</CardTitle>
-              <CardDescription>Your filters have been processed</CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {activeFilters.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-4">
-              <span className="text-sm text-muted-foreground mr-2">Filters:</span>
-              {activeFilters.map((filter, idx) => (
-                <Badge key={idx} variant="secondary">{filter}</Badge>
-              ))}
-            </div>
-          )}
-
-          <div className="p-4 bg-green-50 rounded-lg border border-green-100">
-            <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
-              <span>Data sent to Clay API successfully!</span>
-            </h3>
-            <p className="text-sm text-green-700 mb-2">
-              Your search data has been sent to Clay API. Check your Clay dashboard for the processed leads.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      
     </div>
   );
 }

@@ -4,8 +4,9 @@ import { Icons } from './icons';
 import { Badge } from './ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Skeleton } from './ui/skeleton';
-import { AlertCircle, CheckCircle2, RefreshCw } from 'lucide-react';
+import { AlertCircle, CheckCircle2, RefreshCw, Trash2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
+import { toast } from './ui/use-toast';
 
 // Type for the results
 interface ResultData {
@@ -24,6 +25,7 @@ export default function ClayResults() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [polling, setPolling] = useState(true);
+    const [deleting, setDeleting] = useState(false);
 
     // Function to fetch results from the webhook endpoint
     const fetchResults = async () => {
@@ -47,6 +49,48 @@ export default function ClayResults() {
             console.error('Error fetching results:', err);
         } finally {
             setLoading(false);
+        }
+    };
+
+    // Function to delete all results
+    const deleteAllResults = async () => {
+        if (!confirm('Are you sure you want to delete all results? This cannot be undone.')) {
+            return;
+        }
+
+        try {
+            setDeleting(true);
+            const response = await fetch('/api/clay-webhook', {
+                method: 'DELETE',
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server responded with ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+                setResults([]);
+                setLastUpdated(null);
+                toast({
+                    title: "Results cleared",
+                    description: "All results have been cleared successfully",
+                    duration: 3000,
+                });
+            } else {
+                throw new Error(data.message || 'Failed to clear results');
+            }
+        } catch (err) {
+            toast({
+                title: "Error clearing results",
+                description: err instanceof Error ? err.message : 'An error occurred',
+                variant: "destructive",
+                duration: 3000,
+            });
+            console.error('Error clearing results:', err);
+        } finally {
+            setDeleting(false);
         }
     };
 
@@ -90,8 +134,8 @@ export default function ClayResults() {
                     <button
                         onClick={togglePolling}
                         className={`px-3 py-1 rounded-md text-sm font-medium ${polling
-                                ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                                : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                            ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                            : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
                             }`}
                     >
                         {polling ? 'Polling Active' : 'Polling Paused'}
@@ -102,6 +146,14 @@ export default function ClayResults() {
                         disabled={loading}
                     >
                         <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                    </button>
+                    <button
+                        onClick={deleteAllResults}
+                        className="p-1 rounded-md bg-red-100 text-red-800 hover:bg-red-200"
+                        disabled={deleting || results.length === 0}
+                        title="Delete all results"
+                    >
+                        <Trash2 className={`h-4 w-4 ${deleting ? 'opacity-50' : ''}`} />
                     </button>
                 </div>
             </div>
