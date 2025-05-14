@@ -5,6 +5,9 @@ import { Country, State } from 'country-state-city';
 const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1372140140348051467/sUKMcvwabCzx8DG_0E5EdZf_xPSTg5neIvfzmDXYFoyyDVmmrHVjoZ1RRDPsHt5fPV_G';
 const CLAY_WEBHOOK_URL = 'https://api.clay.com/v3/sources/webhook/pull-in-data-from-a-webhook-9b7961bf-0334-478c-b9ee-8bb3b8062135';
 
+// API proxy endpoints
+const CLAY_API_PROXY = '/api/mcp-clay-proxy';
+
 // Function to format data for Clay API
 function formatClayData(data: any) {
     // Get readable country and state names
@@ -76,36 +79,95 @@ async function sendToDiscordWebhook(data: any) {
     }
 }
 
-// Main search function - this now uses the webhook model
+// Function to send data to Clay API via our MCP proxy endpoint
+async function sendToClayApi(data: any): Promise<{ success: boolean; message: string; data?: string }> {
+    const clayData = formatClayData(data);
+
+    try {
+        console.log('Sending data to Clay API via MCP proxy endpoint');
+
+        const response = await fetch(CLAY_API_PROXY, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(clayData),
+            // Increase timeout to give the proxy more time
+            signal: AbortSignal.timeout(15000) // 15 second timeout
+        });
+
+        if (response.ok) {
+            const responseText = await response.text();
+            console.log('Clay API response:', responseText);
+            return {
+                success: true,
+                message: "Successfully sent data to Clay API via MCP proxy",
+                data: responseText
+            };
+        } else {
+            const errorText = await response.text();
+            console.error(`MCP proxy error: ${response.status} - ${errorText}`);
+            return {
+                success: false,
+                message: `Error from Clay API: ${response.status} - ${errorText}`
+            };
+        }
+    } catch (error) {
+        console.error('Error sending to Clay API MCP proxy:', error);
+        return {
+            success: false,
+            message: error instanceof Error ? error.message : "Unknown error occurred"
+        };
+    }
+}
+
+// Simulated Clay API call (fallback in case proxy fails)
+async function simulateClayWebhook(data: any) {
+    console.log('Simulating Clay API webhook call (not actually sending)');
+    console.log('Data that would be sent:', formatClayData(data));
+
+    // Simulate a delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    // Return success
+    return { success: true, message: "Simulated Clay API call" };
+}
+
+// Search functionality - now using our MCP proxy endpoint
 export async function searchPeople(query: SearchQuery) {
     try {
-        // Send to Discord for logging
+        // Send to Discord (this usually works from localhost)
         await sendToDiscordWebhook(query);
 
-        // Format the data for Clay
-        const clayData = formatClayData(query);
-        console.log('Formatted data for Clay:', clayData);
+        // Try to send to Clay API via our MCP proxy endpoint
+        console.log("Attempting to send data to Clay API via MCP proxy endpoint...");
+        const clayResult = await sendToClayApi(query);
 
-        // No direct API call to Clay
-        // Instead, tell user to wait for callback
+        if (!clayResult.success) {
+            console.warn('Clay API MCP proxy failed, falling back to simulation', clayResult.message);
+            // Fall back to simulation if proxy call fails
+            await simulateClayWebhook(query);
+        }
 
         // Return success response
         return {
             success: true,
-            message: "Your search query has been recorded. Your friend will process it in Clay and send results back to the webhook.",
-            clayApiSuccess: true, // Just to avoid showing CORS error message
+            message: clayResult.success
+                ? `Your search query has been sent to Clay API via MCP proxy.`
+                : `Your search query has been processed, but we couldn't send it to Clay API. Please use the CURL command.`,
+            clayApiSuccess: clayResult.success,
             results: []
         };
     } catch (error) {
         console.error('Search error:', error);
         return {
             success: false,
-            message: "An error occurred while processing your search. Please try again later."
+            message: "An error occurred while searching. Please try again later."
         };
     }
 }
 
-// Test function - just logs data without calling Clay
+// Direct test function for Clay API with MCP proxy
 export async function testClayAPI() {
     const testData = {
         companySize: "51-200",
@@ -121,24 +183,30 @@ export async function testClayAPI() {
     };
 
     try {
-        console.log('Test mode: Creating formatted data for Clay...');
+        // Try to send directly to Clay API via MCP proxy
+        console.log('Attempting to send test data to Clay API via MCP proxy endpoint...');
 
-        // Format data
-        const formattedData = formatClayData(testData);
-        console.log('Formatted test data:', formattedData);
+        const result = await sendToClayApi(testData);
 
-        // Simulate a delay 
-        await new Promise(resolve => setTimeout(resolve, 500));
+        if (!result.success) {
+            console.warn('MCP proxy failed for test, using simulation instead');
+            // Return the error with instructions to use CURL instead
+            return {
+                success: false,
+                message: `Could not send data to Clay API: ${result.message}. Please use the CURL command.`,
+            };
+        }
 
         return {
             success: true,
-            message: "Test data prepared. Your friend will send results to your webhook."
+            message: "Successfully sent test data to Clay API via MCP proxy!",
+            data: result.data
         };
     } catch (error) {
-        console.error('Error in test:', error);
+        console.error('Error testing Clay API:', error);
         return {
             success: false,
-            message: error instanceof Error ? error.message : "An unexpected error occurred during testing"
+            message: error instanceof Error ? error.message : "An error occurred while testing Clay API"
         };
     }
 }
