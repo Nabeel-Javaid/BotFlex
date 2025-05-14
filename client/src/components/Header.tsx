@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { Link } from "wouter";
-import { UserMenu } from "@/components/auth";
-import { AuthModal } from "@/components/auth";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export default function Header() {
@@ -53,9 +51,7 @@ export default function Header() {
           </div>
           
           {/* Desktop user menu */}
-          <div className="hidden md:flex items-center">
-            <UserMenu onOpenAuthModal={handleOpenAuthModal} />
-          </div>
+         
           
           {/* Mobile menu */}
           <Sheet>
@@ -73,9 +69,7 @@ export default function Header() {
                   <Link href="/">
                     <span className="text-slate-600 hover:text-blue-600 transition-colors font-medium cursor-pointer">Home</span>
                   </Link>
-                  <div className="md:hidden w-full pt-4">
-                    <UserMenu onOpenAuthModal={handleOpenAuthModal} />
-                  </div>
+                  
                 </div>
               </div>
             </SheetContent>
@@ -83,11 +77,7 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Auth Modal */}
-      <AuthModal 
-        isOpen={isAuthModalOpen} 
-        onClose={handleCloseAuthModal} 
-      />
+    
     </header>
   );
 }

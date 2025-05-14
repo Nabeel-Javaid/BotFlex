@@ -3,8 +3,7 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAuth } from '@/contexts/AuthContext'
-import { useToast } from '@/hooks/use-toast'
-import { handleAuthError } from '@/lib/supabase'
+import { useToast } from '@/components/ui/use-toast'
 
 import {
   Form,
@@ -50,22 +49,17 @@ export function LoginForm({ onSuccess, onSignUpClick }: LoginFormProps) {
 
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true)
-    
-    try {
-      const { error } = await signIn(data.email, data.password)
 
-      if (error) {
-        toast({
-          variant: 'destructive',
-          title: 'Login failed',
-          description: handleAuthError(error),
-        })
-        return
-      }
+    try {
+      // Since we've removed actual authentication, just simulate a successful login
+      await new Promise(resolve => setTimeout(resolve, 800)); // Simulate API delay
+
+      // With our simplified AuthContext, signIn takes no arguments now
+      const { error } = await signIn();
 
       toast({
         title: 'Login successful',
-        description: 'Welcome back!',
+        description: 'This is a simulated login. Authentication has been disabled.',
       })
 
       if (onSuccess) {
@@ -147,6 +141,11 @@ export function LoginForm({ onSuccess, onSignUpClick }: LoginFormProps) {
         >
           Sign up
         </button>
+      </div>
+
+      <div className="mt-4 p-3 bg-blue-50 rounded-md text-sm text-blue-700">
+        <p className="font-medium">Note: Authentication functionality has been removed</p>
+        <p>This form is now a placeholder. No actual login will occur.</p>
       </div>
     </div>
   )

@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { searchPeople } from "@/lib/api";
 import { searchQuerySchema, type SearchQuery } from "@shared/schema";
 import { Form } from "@/components/ui/form";
-import {
+import { 
   CompanyAttributesSection,
   LocationSection,
   JobTitleSection,
@@ -125,10 +125,10 @@ const InfoSection = () => {
   );
 };
 
-export default function PeopleSearchForm({
-  onSearchSubmit,
+export default function PeopleSearchForm({ 
+  onSearchSubmit, 
   onSearchStart,
-  isLoading
+  isLoading 
 }: PeopleSearchFormProps) {
   const { toast } = useToast();
   const form = useForm<SearchQuery>({
@@ -138,7 +138,7 @@ export default function PeopleSearchForm({
       companySize: "any",
       industry: "",
       companyKeywords: "",
-
+      
       // Location
       country: "",
       region: "",
@@ -156,11 +156,11 @@ export default function PeopleSearchForm({
   const onSubmit = async (data: SearchQuery) => {
     try {
       onSearchStart();
-
+      
       // Display toast about sending data
       toast({
-        title: "Submitting search",
-        description: "Sending your search query...",
+        title: "Processing search",
+        description: "Sending data to Clay API...",
         duration: 3000,
       });
 
@@ -169,12 +169,12 @@ export default function PeopleSearchForm({
       // If successful, show success toast
       if (result.success) {
         toast({
-          title: "Search submitted",
-          description: "Your search query has been processed successfully.",
+          title: "Search processed",
+          description: "Your search query has been sent to Clay API.",
           variant: "default",
         });
       }
-
+      
       onSearchSubmit(result, data);
     } catch (error) {
       console.error("Error submitting search:", error);
@@ -182,15 +182,15 @@ export default function PeopleSearchForm({
       // Show error toast
       toast({
         title: "Submission error",
-        description: error instanceof Error ? error.message : "An error occurred while submitting your search",
+        description: error instanceof Error ? error.message : "An error occurred while processing your search",
         variant: "destructive",
       });
 
       onSearchSubmit(
-        {
-          success: false,
-          message: error instanceof Error ? error.message : "An error occurred while submitting your search"
-        },
+        { 
+          success: false, 
+          message: error instanceof Error ? error.message : "An error occurred while processing your search"
+        }, 
         data
       );
     }
@@ -205,45 +205,45 @@ export default function PeopleSearchForm({
             <CompanyAttributesSection form={form} />
             <LocationSection form={form} />
           </div>
-
+        
           {/* Middle Column: Job Title, Results Limit, and Search Button */}
           <div className="space-y-6 flex flex-col">
             <JobTitleSection form={form} />
-
+        
             {/* Results Limit Section - Moved from right column to middle column */}
             <ResultsLimitSection form={form} />
-
-            {/* Submit Button Section */}
+        
+        {/* Submit Button Section */}
             <div className="mt-auto pt-6">
-              <Button
-                type="submit"
-                disabled={isLoading}
-                size="lg"
+          <Button
+            type="submit"
+            disabled={isLoading}
+            size="lg"
                 className="w-full py-6 text-lg font-medium rounded-lg shadow-md transition-all hover:shadow-lg bg-blue-600 hover:bg-blue-700"
-              >
-                {isLoading ? (
-                  <>
+          >
+            {isLoading ? (
+              <>
                     <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
                     Finding leads...
-                  </>
-                ) : (
-                  <>
+              </>
+            ) : (
+              <>
                     <Search className="h-6 w-6 mr-2" />
                     Find Leads
-                  </>
-                )}
-              </Button>
+              </>
+            )}
+          </Button>
 
               <div className="text-center text-sm text-muted-foreground mt-3">
                 Configure your search filters to find the right leads
               </div>
-            </div>
-
-            {/* Loading State */}
-            {isLoading && (
+        </div>
+        
+        {/* Loading State */}
+        {isLoading && (
               <div className="flex flex-col items-center justify-center mt-4 p-4 border rounded-lg bg-muted/20">
                 <div className="text-sm text-center space-y-2">
                   <p className="font-medium">Searching for leads...</p>

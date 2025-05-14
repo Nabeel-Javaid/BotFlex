@@ -718,9 +718,8 @@ export function LocationSection({ form }: FormSectionProps) {
                   ))}
                 </SelectContent>
               </Select>
-              <FormDescription>
-                First select a state/region to see available cities
-              </FormDescription>
+              {/* <FormDescription>
+              </FormDescription> */}
               <FormMessage />
             </FormItem>
           )}
