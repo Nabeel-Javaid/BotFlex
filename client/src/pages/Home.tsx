@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import PeopleSearchForm from "@/components/PeopleSearchForm";
 import SearchResult from "@/components/SearchResult";
 import LeadResults from "@/components/LeadResults";
+import ClayResults from "@/components/ClayResults";
 import { SearchQuery } from "@shared/schema";
 import { Sliders, Send, Info, AlertTriangle, ExternalLink, Globe, Database } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -67,24 +68,46 @@ export default function Home() {
   const handleTestWebhook = async () => {
     try {
       toast({
-        title: "Simulating webhook callback",
-        description: "Loading sample lead data...",
+        title: "Sending test data to webhook",
+        description: "This simulates your friend sending data to your webhook",
         duration: 3000,
       });
 
-      const response = await fetch('/api/simulate-callback');
+      // Example lead data
+      const testData = {
+        name: "John Doe",
+        title: "CEO",
+        company: "Acme Inc",
+        email: "john@acme.com",
+        phone: "+1-555-123-4567",
+        linkedin: "linkedin.com/in/johndoe",
+        industry: "Technology",
+        location: "San Francisco, CA",
+        companySize: "51-200",
+        revenue: "$10M-$50M",
+        timestamp: new Date().toISOString()
+      };
+
+      // Send to our webhook endpoint
+      const response = await fetch('/api/clay-webhook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(testData),
+      });
+
       const data = await response.json();
 
       if (data.success) {
         toast({
-          title: "Test data loaded",
-          description: data.message,
+          title: "Test data sent to webhook",
+          description: "The results should appear in the results section below",
           duration: 5000,
         });
-        setShowResults(true);
       } else {
         toast({
-          title: "Error simulating webhook",
+          title: "Error sending test data",
           description: data.message,
           variant: "destructive",
           duration: 5000,
@@ -94,7 +117,7 @@ export default function Home() {
       console.error('Error testing webhook:', error);
       toast({
         title: "Error testing webhook",
-        description: "Could not load sample data",
+        description: error instanceof Error ? error.message : "An unknown error occurred",
         variant: "destructive",
         duration: 5000,
       });
@@ -136,7 +159,7 @@ export default function Home() {
                   className="flex items-center gap-1 text-xs bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100"
                 >
                   <Database className="h-3 w-3" />
-                  Test Webhook
+                  Send Test Data
                 </Button>
               </div>
             </div>
@@ -202,8 +225,10 @@ export default function Home() {
             </div>
           )}
 
-          {/* Lead Results - Display when results should be shown */}
-          {showResults && <LeadResults />}
+          {/* Clay Webhook Results */}
+          <div className="mt-8 bg-white shadow rounded-lg p-6">
+            <ClayResults />
+          </div>
         </div>
       </main>
 
