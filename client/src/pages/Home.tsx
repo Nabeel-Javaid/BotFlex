@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import PeopleSearchForm from "@/components/PeopleSearchForm";
 import SearchResult from "@/components/SearchResult";
 import { SearchQuery } from "@shared/schema";
+import { Sliders } from "lucide-react";
 
 export default function Home() {
   const [searchResult, setSearchResult] = useState<{ success: boolean; message: string } | null>(null);
@@ -22,61 +23,48 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen font-body text-foreground flex flex-col">
+    <div className="min-h-screen bg-gray-50 font-sans text-foreground flex flex-col">
       <Header />
       
-      <main className="max-w-6xl mx-auto w-full px-4 py-8 md:px-8 flex-grow">
-        {/* Hero Section */}
-        <div className="mb-12 fade-in">
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 card-shadow">
-            <div className="max-w-3xl">
-              <h1 className="font-heading text-3xl md:text-4xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-primary">
-                Find the Right People
-              </h1>
-              <p className="text-lg mb-6 text-slate-700">
-                Our advanced search platform helps you discover and connect with professionals 
-                based on detailed criteria like job title, company, location, and more.
-              </p>
-              
-              <div className="flex items-center space-x-2 text-sm text-slate-500 mb-6">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                </svg>
-                <span>Fast and accurate results</span>
-                
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500 ml-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                </svg>
-                <span>Comprehensive filtering</span>
-                
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500 ml-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                </svg>
-                <span>Updated data</span>
+      <main className="flex-grow py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Page Header */}
+          <div className="pb-5 border-b border-gray-200 mb-6">
+            <div className="sm:flex sm:items-center sm:justify-between">
+              <div>
+                <h1 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">Lead Finder</h1>
+                <p className="mt-1 text-sm text-gray-500">Find the right leads using advanced filters</p>
+              </div>
+              <div className="mt-3 sm:mt-0 sm:ml-4">
+                <div className="flex items-center text-sm text-gray-500">
+                  <Sliders className="h-4 w-4 mr-1" />
+                  <span>Configure your search filters below</span>
               </div>
             </div>
           </div>
         </div>
         
-        <div className="slide-in">
+          {/* Search Filters */}
+          <div className="bg-white shadow rounded-lg">
+            <div className="px-4 py-5 sm:p-6">
           <PeopleSearchForm 
             onSearchSubmit={handleSearchSubmit} 
             onSearchStart={handleSearchStart}
             isLoading={isLoading}
           />
+            </div>
         </div>
         
+          {/* Search Results */}
         {searchResult && submittedData && (
-          <div className="mt-10 fade-in">
+            <div className="mt-8">
             <SearchResult 
               result={searchResult}
               searchData={submittedData}
             />
           </div>
         )}
+        </div>
       </main>
       
       <Footer />

@@ -1,6 +1,15 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { User, Session } from '@supabase/supabase-js'
-import { supabase, AuthUser, initializeSupabase } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
+import * as api from '@/lib/api'
+
+type AuthUser = {
+  id: string
+  email: string | null
+  firstName: string
+  lastName: string
+  avatarUrl: string
+}
 
 type AuthContextType = {
   user: AuthUser | null
@@ -22,21 +31,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Get session and user on mount
     const getSession = async () => {
       setIsLoading(true)
-      
+
       try {
-        // Initialize Supabase with credentials from the server first
-        await initializeSupabase()
-        
-        // Now get the session
+        // Get the session
         const { data: { session }, error } = await supabase.auth.getSession()
-        
+
         if (error) {
           console.error('Error getting session:', error.message)
         }
-        
+
         setSession(session)
         setUser(session?.user ? mapUserData(session.user) : null)
-        
+
         // Set up auth listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
           setSession(session)
@@ -69,30 +75,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Sign up with email and password
   const signUp = async (email: string, password: string) => {
     setIsLoading(true)
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-    })
-    setIsLoading(false)
-    return { error }
+    try {
+      await api.signUp(email, password);
+      return { error: null };
+    } catch (error: any) {
+      return { error };
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   // Sign in with email and password
   const signIn = async (email: string, password: string) => {
     setIsLoading(true)
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-    setIsLoading(false)
-    return { error }
+    try {
+      await api.signIn(email, password);
+      return { error: null };
+    } catch (error: any) {
+      return { error };
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   // Sign out
   const signOut = async () => {
     setIsLoading(true)
-    await supabase.auth.signOut()
-    setIsLoading(false)
+    try {
+      await api.signOut();
+    } catch (error) {
+      console.error('Error signing out:', error);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   const value = {

@@ -1,18 +1,41 @@
 import { createClient } from '@supabase/supabase-js'
 
-// Direct configuration with hardcoded values
-// NOTE: We're using the actual URLs and keys from environment variables here
-const supabaseUrl = 'https://xizarvcrbwbycijyplsv.supabase.co'
-// Using the anon key - this is safe to expose in client-side code
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpemFydmNyYndieWNpanlwbHN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTUyMjAxMTIsImV4cCI6MjAzMDc5NjExMn0.T8sDvQ37h82V6nPu-9U0m0XUYAUKcQ2FxeFi7wfQDj0'
-
-// Create Supabase client with options
-export const supabase = createClient(supabaseUrl, supabaseKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
+// Safe environment check function for browser and Node environments
+const getEnv = (key: string): string | undefined => {
+  // For Vite-specific environment variables
+  if (import.meta.env && import.meta.env[key]) {
+    return import.meta.env[key];
   }
-})
+
+  // Fallback for Node.js environment (development)
+  if (typeof process !== 'undefined' && process.env && process.env[key]) {
+    return process.env[key];
+  }
+
+  return undefined;
+};
+
+// Get Supabase credentials from environment variables
+const supabaseUrl = getEnv('VITE_SUPABASE_URL') || 'https://example.supabase.co';
+const supabaseKey = getEnv('VITE_SUPABASE_ANON_KEY') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder';
+
+// Create Supabase client
+export const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Helper function to check if Supabase is configured with actual values
+export const isSupabaseConfigured = (): boolean => {
+  return (
+    supabaseUrl !== 'https://example.supabase.co' &&
+    supabaseKey !== 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder'
+  );
+};
+
+// For development, log configuration status
+if (!isSupabaseConfigured()) {
+  console.warn('⚠️ Supabase is using fallback credentials. Set valid VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in environment variables.');
+} else {
+  console.log('✅ Supabase configured successfully.');
+}
 
 // Log connection status
 console.log('Supabase client initialized with URL:', supabaseUrl)
