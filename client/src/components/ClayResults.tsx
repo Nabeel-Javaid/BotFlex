@@ -4,13 +4,17 @@ import { Icons } from './icons';
 import { Badge } from './ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Skeleton } from './ui/skeleton';
-import { AlertCircle, CheckCircle2, RefreshCw, Trash2 } from 'lucide-react';
+import { AlertCircle, CheckCircle2, RefreshCw, Trash2, ArrowUpDown } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { toast } from './ui/use-toast';
+import { Button } from './ui/button';
 
 // Type for the results
 interface ResultData {
     [key: string]: any;
+    _entryId?: string;
+    _receivedAt?: string;
+    timestamp?: string;
 }
 
 interface WebhookResponse {
@@ -26,6 +30,7 @@ export default function ClayResults() {
     const [error, setError] = useState<string | null>(null);
     const [polling, setPolling] = useState(true);
     const [deleting, setDeleting] = useState(false);
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
     // Function to fetch results from the webhook endpoint
     const fetchResults = async () => {
@@ -40,7 +45,16 @@ export default function ClayResults() {
             const data: WebhookResponse = await response.json();
 
             if (data.success && data.results) {
-                setResults(data.results);
+                // Sort results by timestamp or _receivedAt (newest first by default)
+                const sortedResults = [...data.results].sort((a, b) => {
+                    const timeA = a._receivedAt || a.timestamp || '';
+                    const timeB = b._receivedAt || b.timestamp || '';
+                    return sortDirection === 'desc'
+                        ? timeB.localeCompare(timeA)
+                        : timeA.localeCompare(timeB);
+                });
+
+                setResults(sortedResults);
                 setLastUpdated(data.lastUpdated);
                 setError(null);
             }
@@ -50,6 +64,21 @@ export default function ClayResults() {
         } finally {
             setLoading(false);
         }
+    };
+
+    // Toggle sort direction and resort results
+    const toggleSortDirection = () => {
+        const newDirection = sortDirection === 'desc' ? 'asc' : 'desc';
+        setSortDirection(newDirection);
+
+        // Re-sort the existing results
+        setResults(prev => [...prev].sort((a, b) => {
+            const timeA = a._receivedAt || a.timestamp || '';
+            const timeB = b._receivedAt || b.timestamp || '';
+            return newDirection === 'desc'
+                ? timeB.localeCompare(timeA)
+                : timeA.localeCompare(timeB);
+        }));
     };
 
     // Function to delete all results
@@ -108,7 +137,7 @@ export default function ClayResults() {
 
         // Clean up on unmount
         return () => clearInterval(intervalId);
-    }, [polling]);
+    }, [polling, sortDirection]);
 
     // Function to toggle polling
     const togglePolling = () => {
@@ -126,41 +155,62 @@ export default function ClayResults() {
         return new Date(dateString).toLocaleString();
     };
 
+    // Group results by entry ID if available
+    const groupedResults = results.reduce((acc, result) => {
+        const entryId = result._entryId || 'unknown';
+        if (!acc[entryId]) {
+            acc[entryId] = [];
+        }
+        acc[entryId].push(result);
+        return acc;
+    }, {} as Record<string, ResultData[]>);
+
     return (
         <div className="space-y-4">
             <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold">Clay API Results</h2>
                 <div className="flex space-x-2">
-                    <button
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={toggleSortDirection}
+                        title={`Sort by time: ${sortDirection === 'desc' ? 'Newest first' : 'Oldest first'}`}
+                    >
+                        <ArrowUpDown className="h-4 w-4 mr-1" />
+                        {sortDirection === 'desc' ? 'Newest' : 'Oldest'} first
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
                         onClick={togglePolling}
-                        className={`px-3 py-1 rounded-md text-sm font-medium ${polling
-                            ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                            : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-                            }`}
+                        className={`${polling ? 'bg-green-100 text-green-800 hover:bg-green-200' : ''}`}
                     >
                         {polling ? 'Polling Active' : 'Polling Paused'}
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
                         onClick={handleRefresh}
-                        className="p-1 rounded-md bg-blue-100 text-blue-800 hover:bg-blue-200"
                         disabled={loading}
                     >
                         <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                        variant="destructive"
+                        size="sm"
                         onClick={deleteAllResults}
-                        className="p-1 rounded-md bg-red-100 text-red-800 hover:bg-red-200"
                         disabled={deleting || results.length === 0}
                         title="Delete all results"
                     >
                         <Trash2 className={`h-4 w-4 ${deleting ? 'opacity-50' : ''}`} />
-                    </button>
+                    </Button>
                 </div>
             </div>
 
             {lastUpdated && (
                 <div className="text-sm text-gray-500">
                     Last updated: {formatDate(lastUpdated)}
+                    {results.length > 0 && <span> • {results.length} total entries</span>}
                 </div>
             )}
 
@@ -187,38 +237,48 @@ export default function ClayResults() {
 
                     <TabsContent value="table" className="space-y-4">
                         {results.map((result, index) => (
-                            <Card key={index} className="overflow-hidden">
+                            <Card key={result._entryId || index} className="overflow-hidden">
                                 <CardHeader className="bg-muted pb-2">
-                                    <CardTitle className="text-lg">Result #{index + 1}</CardTitle>
-                                    {result.timestamp && (
+                                    <div className="flex justify-between items-center">
+                                        <CardTitle className="text-lg">
+                                            Entry #{results.length - index}
+                                            {result.company && ` - ${result.company}`}
+                                        </CardTitle>
+                                        <Badge variant="outline">
+                                            {formatDate(result._receivedAt || result.timestamp || null)}
+                                        </Badge>
+                                    </div>
+                                    {result._entryId && (
                                         <CardDescription>
-                                            Received: {new Date(result.timestamp).toLocaleString()}
+                                            ID: {result._entryId}
                                         </CardDescription>
                                     )}
                                 </CardHeader>
                                 <CardContent className="pt-4">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {Object.entries(result).map(([key, value]) => (
-                                            <div key={key} className="space-y-1">
-                                                <div className="font-medium text-sm capitalize">{key.replace(/([A-Z])/g, ' $1')}</div>
-                                                <div className="text-sm">
-                                                    {Array.isArray(value) ? (
-                                                        <div className="flex flex-wrap gap-1">
-                                                            {value.map((item, i) => (
-                                                                <Badge key={i} variant="outline">{item}</Badge>
-                                                            ))}
-                                                            {value.length === 0 && <span className="text-muted-foreground">None</span>}
-                                                        </div>
-                                                    ) : typeof value === 'object' && value !== null ? (
-                                                        <pre className="text-xs bg-muted p-2 rounded-md overflow-auto">
-                                                            {JSON.stringify(value, null, 2)}
-                                                        </pre>
-                                                    ) : (
-                                                        String(value)
-                                                    )}
+                                        {Object.entries(result)
+                                            .filter(([key]) => !key.startsWith('_')) // Hide internal fields
+                                            .map(([key, value]) => (
+                                                <div key={key} className="space-y-1">
+                                                    <div className="font-medium text-sm capitalize">{key.replace(/([A-Z])/g, ' $1')}</div>
+                                                    <div className="text-sm">
+                                                        {Array.isArray(value) ? (
+                                                            <div className="flex flex-wrap gap-1">
+                                                                {value.map((item, i) => (
+                                                                    <Badge key={i} variant="outline">{item}</Badge>
+                                                                ))}
+                                                                {value.length === 0 && <span className="text-muted-foreground">None</span>}
+                                                            </div>
+                                                        ) : typeof value === 'object' && value !== null ? (
+                                                            <pre className="text-xs bg-muted p-2 rounded-md overflow-auto">
+                                                                {JSON.stringify(value, null, 2)}
+                                                            </pre>
+                                                        ) : (
+                                                            String(value)
+                                                        )}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            ))}
                                     </div>
                                 </CardContent>
                             </Card>
@@ -230,7 +290,7 @@ export default function ClayResults() {
                             <CardHeader>
                                 <CardTitle>Raw JSON Data</CardTitle>
                                 <CardDescription>
-                                    Complete data as received from Clay API
+                                    Complete data as received from Clay API ({results.length} entries)
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>

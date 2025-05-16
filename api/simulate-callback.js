@@ -4,26 +4,40 @@
 import sampleLeads from './sample-leads';
 
 export default function handler(req, res) {
-    // Only allow POST requests
+    // Only allow GET requests
     if (req.method !== 'GET') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
-        // Get the sample data
+        // Get the sample data with unique timestamp
+        const timestamp = new Date().toISOString();
+        const entryId = `entry-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+
         const testData = {
             ...sampleLeads,
-            timestamp: new Date().toISOString(),
+            timestamp,
+            _entryId: entryId,
+            _receivedAt: timestamp,
             message: "This is simulated data for testing purposes"
         };
 
-        // Store the test data in the global variable (like the real webhook would)
-        global.clayResponseData = testData;
+        // Initialize global.clayResponseData as an array if it doesn't exist
+        if (!global.clayResponseData) {
+            global.clayResponseData = [];
+        } else if (!Array.isArray(global.clayResponseData)) {
+            // Convert to array if it's not already
+            global.clayResponseData = [global.clayResponseData];
+        }
+
+        // Add the new test data to the existing array
+        global.clayResponseData.push(testData);
 
         // Return a success response
         return res.status(200).json({
             success: true,
-            message: 'Test data loaded successfully! Click "Check for Results" to see it on the page.'
+            message: 'Test data added successfully! Click "Check for Results" to see it on the page.',
+            totalEntries: global.clayResponseData.length
         });
     } catch (error) {
         console.error('Error simulating webhook:', error);

@@ -1,9 +1,9 @@
 // Webhook endpoint to receive data from Clay API
-// This will store the latest data received for display on the frontend
+// This will store all data received for display on the frontend
 
 // Simple in-memory storage
 // In a production app, use a database instead
-let latestResults = [];
+let accumulatedResults = [];
 let lastUpdated = null;
 
 export default async function handler(req, res) {
@@ -12,7 +12,7 @@ export default async function handler(req, res) {
         // Return the stored results
         return res.status(200).json({
             success: true,
-            results: latestResults,
+            results: accumulatedResults,
             lastUpdated
         });
     } else if (req.method === 'POST') {
@@ -21,14 +21,32 @@ export default async function handler(req, res) {
             const data = req.body;
             console.log('Received webhook data:', data);
 
-            // Update our stored results
-            latestResults = Array.isArray(data) ? data : [data];
-            lastUpdated = new Date().toISOString();
+            // Generate a unique ID for this data entry
+            const timestamp = new Date().toISOString();
+            const entryId = `entry-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+
+            // Process the data to add metadata
+            const processedData = Array.isArray(data)
+                ? data.map(item => ({
+                    ...item,
+                    _entryId: entryId,
+                    _receivedAt: timestamp
+                }))
+                : [{
+                    ...data,
+                    _entryId: entryId,
+                    _receivedAt: timestamp
+                }];
+
+            // Add to our accumulated results instead of replacing
+            accumulatedResults = [...accumulatedResults, ...processedData];
+            lastUpdated = timestamp;
 
             // Return success response
             return res.status(200).json({
                 success: true,
-                message: 'Webhook data received and stored successfully'
+                message: 'Webhook data received and accumulated successfully',
+                totalEntries: accumulatedResults.length
             });
         } catch (error) {
             console.error('Error processing webhook:', error);
@@ -40,7 +58,7 @@ export default async function handler(req, res) {
         }
     } else if (req.method === 'DELETE') {
         // Clear all stored results
-        latestResults = [];
+        accumulatedResults = [];
         lastUpdated = null;
 
         return res.status(200).json({

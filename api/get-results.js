@@ -10,10 +10,15 @@ export default function handler(req, res) {
     try {
         // Check if we have any data
         if (global.clayResponseData) {
+            // Make sure clayResponseData is always an array
+            const responseData = Array.isArray(global.clayResponseData)
+                ? global.clayResponseData
+                : [global.clayResponseData];
+
             // Return the stored data
             return res.status(200).json({
                 success: true,
-                data: global.clayResponseData
+                data: responseData
             });
         } else {
             // No data yet
