@@ -4,10 +4,15 @@ import { Icons } from './icons';
 import { Badge } from './ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Skeleton } from './ui/skeleton';
-import { AlertCircle, CheckCircle2, RefreshCw, Trash2, ArrowUpDown } from 'lucide-react';
+import { AlertCircle, CheckCircle2, RefreshCw, Trash2, Phone, Mail } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { toast } from './ui/use-toast';
 import { Button } from './ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from './ui/dialog';
+import { Textarea } from './ui/textarea';
+import { RadioGroup, RadioGroupItem } from './ui/radio-group';
+import { Label } from './ui/label';
+import { Input } from './ui/input';
 
 // Type for the results
 interface ResultData {
@@ -28,9 +33,66 @@ export default function ClayResults() {
     const [lastUpdated, setLastUpdated] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [polling, setPolling] = useState(true);
     const [deleting, setDeleting] = useState(false);
-    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+    const [showEmailDialog, setShowEmailDialog] = useState(false);
+    const [selectedTemplate, setSelectedTemplate] = useState<number>(0);
+    const [customEmail, setCustomEmail] = useState('');
+
+    // Email templates
+    const emailTemplates = [
+        {
+            subject: "How lean SaaS teams are scaling without adding headcount",
+            body: `Hello,
+
+Saw that you're part of a fast-growing SaaS team in NYC—so I'll keep this relevant.
+
+A lot of teams your size (11–50) are hitting a growth ceiling—not because of product or demand, but because the manual stuff in sales and onboarding doesn't scale.
+
+We're helping tech companies automate key parts of the funnel—lead response, qualification, appointment setting—using custom AI agents trained on your sales playbook.
+
+No bots that sound like bots. Just more closed deals, less overhead.
+
+Curious to hear how you're thinking about this. Want to swap notes?
+
+Best,
+Your Name
+Your Company`
+        },
+        {
+            subject: "Automating sales workflows for NYC SaaS teams (like [ClientName])",
+            body: `Hello,
+
+I noticed your company is in the 11–50 range—perfect stage to streamline sales ops before scaling.
+
+We've helped SaaS startups like [ClientName] automate lead follow-up and qualification using custom AI workflows (built with VAPI + Clay + Make). Result? 3x more booked calls, 40% less ops overhead.
+
+If you're exploring AI in your GTM, I'd love to share how we do it.
+
+Want to grab 15 minutes?
+
+Cheers,
+Your Name
+Your Company
+Your Calendly`
+        },
+        {
+            subject: "Manual follow-ups killing your pipeline?",
+            body: `Hello,
+
+SaaS founders and GTM leaders I speak with in NYC all say the same thing:
+
+"We're losing leads because we just don't have the bandwidth to follow up fast enough."
+
+Is that something you're seeing too?
+
+We're helping tech teams automate the first 5–10 touches with leads—so your reps focus only on deals worth closing. One client just cut their CAC by 22% without hiring.
+
+Would a 15-min call next week make sense?
+
+Best,
+Your Name`
+        }
+    ];
 
     // Function to fetch results from the webhook endpoint
     const fetchResults = async () => {
@@ -45,13 +107,11 @@ export default function ClayResults() {
             const data: WebhookResponse = await response.json();
 
             if (data.success && data.results) {
-                // Sort results by timestamp or _receivedAt (newest first by default)
+                // Sort results by timestamp or _receivedAt (newest first)
                 const sortedResults = [...data.results].sort((a, b) => {
                     const timeA = a._receivedAt || a.timestamp || '';
                     const timeB = b._receivedAt || b.timestamp || '';
-                    return sortDirection === 'desc'
-                        ? timeB.localeCompare(timeA)
-                        : timeA.localeCompare(timeB);
+                    return timeB.localeCompare(timeA);
                 });
 
                 setResults(sortedResults);
@@ -64,21 +124,6 @@ export default function ClayResults() {
         } finally {
             setLoading(false);
         }
-    };
-
-    // Toggle sort direction and resort results
-    const toggleSortDirection = () => {
-        const newDirection = sortDirection === 'desc' ? 'asc' : 'desc';
-        setSortDirection(newDirection);
-
-        // Re-sort the existing results
-        setResults(prev => [...prev].sort((a, b) => {
-            const timeA = a._receivedAt || a.timestamp || '';
-            const timeB = b._receivedAt || b.timestamp || '';
-            return newDirection === 'desc'
-                ? timeB.localeCompare(timeA)
-                : timeA.localeCompare(timeB);
-        }));
     };
 
     // Function to delete all results
@@ -130,19 +175,12 @@ export default function ClayResults() {
 
         // Set up polling interval
         const intervalId = setInterval(() => {
-            if (polling) {
-                fetchResults();
-            }
+            fetchResults();
         }, 5000); // Poll every 5 seconds
 
         // Clean up on unmount
         return () => clearInterval(intervalId);
-    }, [polling, sortDirection]);
-
-    // Function to toggle polling
-    const togglePolling = () => {
-        setPolling(!polling);
-    };
+    }, []);
 
     // Function to manually refresh
     const handleRefresh = () => {
@@ -165,6 +203,17 @@ export default function ClayResults() {
         return acc;
     }, {} as Record<string, ResultData[]>);
 
+    const handleEmailClick = () => {
+        setSelectedTemplate(0);
+        setCustomEmail('Hello,\n\nI wanted to reach out regarding...\n\nBest,\nYour Name');
+        setShowEmailDialog(true);
+    };
+
+    // Function to simulate sending an email (doesn't actually do anything)
+    const handleSendEmail = () => {
+        setShowEmailDialog(false);
+    };
+
     return (
         <div className="space-y-4">
             <div className="flex justify-between items-center">
@@ -173,19 +222,20 @@ export default function ClayResults() {
                     <Button
                         variant="outline"
                         size="sm"
-                        onClick={toggleSortDirection}
-                        title={`Sort by time: ${sortDirection === 'desc' ? 'Newest first' : 'Oldest first'}`}
+                        onClick={() => { }}
+                        title="Call contact"
                     >
-                        <ArrowUpDown className="h-4 w-4 mr-1" />
-                        {sortDirection === 'desc' ? 'Newest' : 'Oldest'} first
+                        <Phone className="h-4 w-4 mr-1" />
+                        Call
                     </Button>
                     <Button
                         variant="outline"
                         size="sm"
-                        onClick={togglePolling}
-                        className={`${polling ? 'bg-green-100 text-green-800 hover:bg-green-200' : ''}`}
+                        onClick={handleEmailClick}
+                        title="Email contact"
                     >
-                        {polling ? 'Polling Active' : 'Polling Paused'}
+                        <Mail className="h-4 w-4 mr-1" />
+                        Email
                     </Button>
                     <Button
                         variant="outline"
@@ -206,6 +256,56 @@ export default function ClayResults() {
                     </Button>
                 </div>
             </div>
+
+            {/* Email Templates Dialog */}
+            <Dialog open={showEmailDialog} onOpenChange={setShowEmailDialog}>
+                <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>Email Templates</DialogTitle>
+                        <DialogDescription>
+                            Select a template or create your own email.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="py-4">
+                        <RadioGroup value={selectedTemplate.toString()} onValueChange={(value) => setSelectedTemplate(parseInt(value))}>
+                            {emailTemplates.map((template, index) => (
+                                <div key={index} className="flex items-start space-x-2 mb-4 pb-4 border-b">
+                                    <RadioGroupItem value={index.toString()} id={`template-${index}`} className="mt-1" />
+                                    <div className="flex-1">
+                                        <Label htmlFor={`template-${index}`} className="font-medium">
+                                            {template.subject}
+                                        </Label>
+                                        <pre className="mt-2 text-sm whitespace-pre-wrap font-sans">{template.body}</pre>
+                                    </div>
+                                </div>
+                            ))}
+
+                            <div className="flex items-start space-x-2">
+                                <RadioGroupItem value="3" id="custom-template" className="mt-1" />
+                                <div className="flex-1">
+                                    <Label htmlFor="custom-template" className="font-medium">
+                                        Your own email
+                                    </Label>
+                                    <Textarea
+                                        className="mt-2"
+                                        placeholder="Enter your custom email here"
+                                        value={customEmail}
+                                        onChange={(e) => setCustomEmail(e.target.value)}
+                                        rows={10}
+                                    />
+                                </div>
+                            </div>
+                        </RadioGroup>
+                    </div>
+
+                    <DialogFooter className="mt-4 flex justify-end">
+                        <Button type="submit" onClick={handleSendEmail}>
+                            Send Email
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
             {lastUpdated && (
                 <div className="text-sm text-gray-500">
