@@ -59,7 +59,7 @@ Your Name
 Your Company`
         },
         {
-            subject: "Automating sales workflows for NYC SaaS teams (like [ClientName])",
+            subject: "Automating sales workflows for NYC SaaS teams",
             body: `Hello,
 
 I noticed your company is in the 11–50 range—perfect stage to streamline sales ops before scaling.
