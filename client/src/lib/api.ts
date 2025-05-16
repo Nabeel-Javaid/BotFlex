@@ -11,13 +11,15 @@ const CLAY_API_PROXY = '/api/clay-proxy';
 // Function to format data for Clay API
 function formatClayData(data: any) {
     // Get readable country and state names
-    let countryName = 'Not specified';
-    let stateName = 'Not specified';
+    let countryName = null;
+    let stateName = null;
 
     if (data.country) {
         const country = Country.getCountryByCode(data.country);
         if (country) {
             countryName = country.name;
+        } else {
+            countryName = 'Not specified';
         }
     }
 
@@ -25,17 +27,19 @@ function formatClayData(data: any) {
         const state = State.getStateByCodeAndCountry(data.region, data.country);
         if (state) {
             stateName = state.name;
+        } else {
+            stateName = 'Not specified';
         }
     }
 
     // Format data for Clay API
     return {
-        companySize: data.companySize || 'Any',
-        industry: data.industry || '',
-        companyKeywords: data.companyKeywords || '',
+        companySize: data.companySize && data.companySize !== '' && data.companySize !== 'any' ? data.companySize : null,
+        industry: data.industry && data.industry !== '' ? data.industry : null,
+        companyKeywords: data.companyKeywords && data.companyKeywords !== '' ? data.companyKeywords : null,
         country: countryName,
         region: stateName,
-        city: data.city || '',
+        city: data.city && data.city !== '' ? data.city : null,
         jobLevels: data.jobLevels || [],
         jobTitles: data.jobTitles || [],
         resultsLimit: data.resultsLimit || 100,

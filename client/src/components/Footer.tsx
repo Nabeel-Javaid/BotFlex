@@ -7,33 +7,33 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center mb-4">
-              <svg 
-                className="w-6 h-6 mr-2 text-blue-600" 
-                viewBox="0 0 24 24" 
-                fill="none" 
+              <svg
+                className="w-6 h-6 mr-2 text-blue-600"
+                viewBox="0 0 24 24"
+                fill="none"
                 xmlns="http://www.w3.org/2000/svg"
               >
-                <path 
-                  d="M17 20.5H7C4 20.5 2 19 2 15.5V8.5C2 5 4 3.5 7 3.5H17C20 3.5 22 5 22 8.5V15.5C22 19 20 20.5 17 20.5Z" 
-                  stroke="currentColor" 
-                  strokeWidth="1.5" 
-                  strokeLinecap="round" 
+                <path
+                  d="M17 20.5H7C4 20.5 2 19 2 15.5V8.5C2 5 4 3.5 7 3.5H17C20 3.5 22 5 22 8.5V15.5C22 19 20 20.5 17 20.5Z"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
                   strokeLinejoin="round"
                 />
-                <path 
-                  d="M17 9L13.87 11.5C12.84 12.32 11.15 12.32 10.12 11.5L7 9" 
-                  stroke="currentColor" 
-                  strokeWidth="1.5" 
-                  strokeLinecap="round" 
+                <path
+                  d="M17 9L13.87 11.5C12.84 12.32 11.15 12.32 10.12 11.5L7 9"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
                   strokeLinejoin="round"
                 />
               </svg>
               <h2 className="font-heading text-xl font-bold text-slate-800">
-                <span className="text-blue-600">People</span>Search
+                <span className="text-blue-600">Bot</span>flux
               </h2>
             </div>
             <p className="text-slate-600 mb-6 max-w-md">
-              Powerful people search platform with comprehensive filtering options. 
+              Powerful Botflux platform with comprehensive filtering options.
               Find the right contacts based on detailed criteria.
             </p>
             <div className="flex space-x-4">
@@ -109,9 +109,9 @@ export default function Footer() {
             </ul>
           </div>
         </div>
-        
+
         <div className="mt-12 pt-6 border-t border-slate-200 text-sm text-center text-slate-500">
-          <p>&copy; {new Date().getFullYear()} PeopleSearch. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Botflux. All rights reserved.</p>
         </div>
       </div>
     </footer>

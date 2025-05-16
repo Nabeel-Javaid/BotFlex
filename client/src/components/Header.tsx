@@ -43,7 +43,7 @@ export default function Header() {
             <Link href="/">
               <div className="cursor-pointer">
                 <h1 className="font-heading text-2xl font-bold text-slate-800">
-                  <span className="text-blue-600">People</span>Search
+                  <span className="text-blue-600">Bot</span>flux
                 </h1>
                 <div className="h-1 w-12 bg-gradient-primary rounded-full"></div>
               </div>

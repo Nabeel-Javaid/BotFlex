@@ -13,7 +13,7 @@ export async function sendToDiscordWebhook(
     content: "New search query from ArchiVintage:",
     embeds: [
       {
-        title: "People Search Query",
+        title: "Botflux Query",
         color: 8531219, // Brown color in decimal
         fields: Object.entries(data).map(([key, value]) => {
           return {
@@ -23,7 +23,7 @@ export async function sendToDiscordWebhook(
           };
         }),
         footer: {
-          text: "ArchiVintage People Search",
+          text: "ArchiVintage Botflux",
         },
         timestamp: new Date().toISOString(),
       },
@@ -44,13 +44,13 @@ export function formatFilterName(key: string): string {
   const formatted = key
     .replace(/([A-Z])/g, " $1")
     .replace(/^./, (str) => str.toUpperCase());
-  
+
   return formatted;
 }
 
 export function animateElement(element: HTMLElement, animationName: string, duration: number = 800): void {
   element.style.animation = `${animationName} ${duration}ms`;
-  
+
   setTimeout(() => {
     element.style.animation = '';
   }, duration);

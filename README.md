@@ -1,4 +1,4 @@
-# People Search Application
+# Botflux Application
 
 A frontend-only application for searching people based on various criteria. Built with React, Vite, and Supabase.
 
@@ -51,7 +51,7 @@ Vercel will automatically detect the Vite configuration and deploy your applicat
 ## Features
 
 - User authentication with Supabase
-- People search with multiple filters
+- Botflux with multiple filters
 - Responsive design with Tailwind CSS
 - Form validation with Zod and React Hook Form
 
