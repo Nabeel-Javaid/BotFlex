@@ -6,7 +6,7 @@
 const fetch = require('node-fetch');
 
 // Replace with your actual deployed URL
-const WEBHOOK_URL = 'https://clay-autonomous.vercel.app/api/clay-webhook';
+const WEBHOOK_URL = 'https://botflux.vercel.app/api/clay-webhook';
 
 // Example lead data - this simulates the data your friend would send
 const exampleData = [
